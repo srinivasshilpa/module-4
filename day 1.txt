@@ -1,0 +1,670 @@
+PERSIST
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="employee_tbl")  //to add table explicitly
+public class Employee {
+	 @Id  //primary key
+	 @GeneratedValue(strategy=GenerationType.AUTO)//auto is default if strategy is not specified
+	 @Column(name="emp_id")
+     private int employeeId;
+	 
+	 @Column(name="emp_name", length=15)
+     private String employeeName;
+	 
+	 @Column(name="emp_sal")
+     private int employeeSalary;
+	
+     public int getEmployeeId() {
+		return employeeId;
+	}
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+	public int getEmployeeSalary() {
+		return employeeSalary;
+	}
+	public void setEmployeeSalary(int employeeSalary) {
+		this.employeeSalary = employeeSalary;
+	}
+	
+	
+	public Employee() {
+		super();
+	}
+	
+	
+	public Employee(int employeeId, String employeeName, int employeeSalary) {
+		super();
+		this.employeeId = employeeId;
+		this.employeeName = employeeName;
+		this.employeeSalary = employeeSalary;
+	}
+     
+}
+-----------------------------------------------------------------------------------------------------
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		  Employee emp = new Employee(); // object in transaction state
+		  emp.setEmployeeName("john");  //id is  created through sequence
+		  emp.setEmployeeSalary(30000);
+		  
+		  em.persist(emp);
+		  
+		  
+		  em.getTransaction().commit();
+		  
+		  System.out.println("employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+---------------------------------------------------------------------------------------------------
+FETCHING
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		  
+		 Employee emp=em.find(Employee.class, 7);
+		 if(emp==null){
+			 System.out.println("Employee not found");
+		 }else{
+			 System.out.println(emp.getEmployeeId()+" " +emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+		 }
+		  
+		  em.getTransaction().commit();
+		  
+		  System.out.println("employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+---------------------------------------------------------------------------------------------------------
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		  
+		 Employee emp=em.find(Employee.class, 4);
+		 if(emp==null){
+			 System.out.println("Employee not found");
+		 }else{
+			 emp.setEmployeeSalary(5000);
+			 System.out.println(emp.getEmployeeId()+" " +emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+		 }
+		  
+		  em.getTransaction().commit();
+		  
+		  System.out.println("employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+//even though it is not in persist the value of salary is changed because it is in manage state
+the salary is changed to 5000
+-------------------------------------------------------------------------------------------------------
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		  
+		 Employee emp=em.find(Employee.class, 4);
+		 if(emp==null){
+			 System.out.println("Employee not found");
+		 }else{
+			 em.detach(emp);
+			 emp.setEmployeeSalary(15000);
+			 System.out.println(emp.getEmployeeId()+" " +emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+		 }
+		  
+		  em.getTransaction().commit();
+		  
+		  System.out.println("employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+
+//detach will change in application not in database
+-------------------------------------------------------------------------------------------------
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		  
+		 Employee emp=em.find(Employee.class, 4);
+		 if(emp==null){
+			 System.out.println("Employee not found");
+		 }else{
+			 em.clear();
+			 emp.setEmployeeSalary(15000);
+			 System.out.println(emp.getEmployeeId()+" " +emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+		 }
+		  
+		  em.getTransaction().commit();
+		  
+		  System.out.println("employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+clear will detach all the fields of database
+-------------------------------------------------------------------------------------------------
+                                                                                 FIND AND DELETE
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		  
+		 Employee emp=em.find(Employee.class, 5);
+		 if(emp==null){
+			 System.out.println("Employee not found");
+		 }else{
+			 em.remove(emp);
+			 System.out.println("Employee removed successfully");
+			 System.out.println(emp.getEmployeeId()+" " +emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+		 }
+		  
+		  em.getTransaction().commit();
+		  
+		  System.out.println("employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+OUTPUT:
+Hibernate: select employee0_.emp_id as emp1_0_0_, employee0_.emp_name as emp2_0_0_, employee0_.emp_sal as emp3_0_0_ from employee_tbl employee0_ where employee0_.emp_id=?
+Employee removed successfully
+5 john 30000
+Hibernate: delete from employee_tbl where emp_id=?
+employee added to database
+----------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                            UPDATE 
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		  
+		 Employee emp=em.find(Employee.class, 2);
+		 if(emp==null){
+			 System.out.println("Employee not found");
+		 }else{
+			 emp.setEmployeeName("shilpa");
+			 em.merge(emp);
+			 System.out.println("Employee name is updated successfully");
+			
+		 }
+		  
+		  em.getTransaction().commit();
+		  
+		  System.out.println("employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+
+OUTPUT:
+Hibernate: select employee0_.emp_id as emp1_0_0_, employee0_.emp_name as emp2_0_0_, employee0_.emp_sal as emp3_0_0_ from employee_tbl employee0_ where employee0_.emp_id=?
+Employee name is updated successfully
+employee added to database
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                     TO FETCH ALL THE DETAILS OF THE TABLE
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		      
+		  Query qry = em.createQuery("from Employee");   //or select e from employee e 
+		  
+		  List list = qry.getResultList();
+		  
+		  for(Object obj : list)
+		  {
+			   Employee emp=(Employee) obj;
+			   System.out.println(emp.getEmployeeId()+" "+emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+		  }
+		 
+		  em.getTransaction().commit();
+		  
+		
+		  em.close();
+		  emf.close();
+	}
+}
+
+OUTPUT:
+Hibernate: select employee0_.emp_id as emp1_0_, employee0_.emp_name as emp2_0_, employee0_.emp_sal as emp3_0_ from employee_tbl employee0_
+2 shilpa 30000
+3 crista 30000
+4 john 5000
+
+// HER WE ARE USING GENERAL QUERY... AND WE ARE TYPE CASTING TO EMPLOYEE HERE.... TO AVOID THIS WE GO FOR TYPED QUERY
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                            TYPED QUERY
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		      
+		  TypedQuery<Employee> qry = em.createQuery("from Employee",Employee.class);
+		   List<Employee> list = qry.getResultList();
+		   
+		   for(Employee emp : list)
+		   {
+			   
+			 System.out.println(emp.getEmployeeId()+" "+emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+			   
+		   }
+		   
+		  em.getTransaction().commit();
+		  
+		
+		  em.close();
+		  emf.close();
+	}
+}
+
+OUTPUT:
+Hibernate: select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_sal as emp3_1_ from employee_tbl employee0_
+2 shilpa 30000
+3 crista 30000
+4 john 5000
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                 FOR ANY SINGLE ROW WE GO FOR getSingleResult);
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		      
+		  TypedQuery<Employee> qry = em.createQuery("from Employee where employeeId =4",Employee.class);
+		   Employee emp = qry.getSingleResult();
+		   
+		     
+			 System.out.println(emp.getEmployeeId()+" "+emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+			   
+		   
+		   
+		  em.getTransaction().commit();
+		  
+		
+		  em.close();
+		  emf.close();
+	}
+}
+
+output:
+Hibernate: select * from ( select employee0_.emp_id as emp1_0_, employee0_.emp_name as emp2_0_, employee0_.emp_sal as emp3_0_ from employee_tbl employee0_ where employee0_.emp_id=4 ) where rownum <= ?
+4 john 5000
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		      
+		  TypedQuery<Employee> qry = em.createQuery("from Employee where employeeId =?",Employee.class);
+		  qry.setParameter(1,4);
+		   Employee emp = qry.getSingleResult();
+		   
+		     
+			 System.out.println(emp.getEmployeeId()+" "+emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+			   
+		   
+		   
+		  em.getTransaction().commit();
+		  
+		
+		  em.close();
+		  emf.close();
+	}
+}
+
+
+output:
+Hibernate: select * from ( select employee0_.emp_id as emp1_0_, employee0_.emp_name as emp2_0_, employee0_.emp_sal as emp3_0_ from employee_tbl employee0_ where employee0_.emp_id=? ) where rownum <= ?
+4 john 5000
+
+                                                      if the empId is more than the value present in db it thorws an exception
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if there are multiple ?s we give named parameter in above we were giving position parameter i.e (1,10) 1 is position
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		      
+		  TypedQuery<Employee> qry = em.createQuery("from Employee where employeeId =:id",Employee.class);
+		  qry.setParameter("id",4);
+		   Employee emp = qry.getSingleResult();
+		   
+		     
+			 System.out.println(emp.getEmployeeId()+" "+emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+			   
+		   
+		   
+		  em.getTransaction().commit();
+		  
+		
+		  em.close();
+		  emf.close();
+	}
+}
+
+output : same as above
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                      we give named query is given in bean class then we give namedquery
+package com.cg.jpastart.entities;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="employee_tbl")  //to add table explicitly
+@NamedQuery(name="viewAllEmployee",query="from Employee")
+public class Employee {
+	 @Id  //primary key
+	 @GeneratedValue(strategy=GenerationType.AUTO)//auto is default if strategy is not specified
+	 @Column(name="emp_id")
+     private int employeeId;
+	 
+	 @Column(name="emp_name", length=15)
+     private String employeeName;
+	 
+	 @Column(name="emp_sal")
+     private int employeeSalary;
+	
+     public int getEmployeeId() {
+		return employeeId;
+	}
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+	public int getEmployeeSalary() {
+		return employeeSalary;
+	}
+	public void setEmployeeSalary(int employeeSalary) {
+		this.employeeSalary = employeeSalary;
+	}
+	
+	
+	public Employee() {
+		super();
+	}
+	
+	
+	public Employee(int employeeId, String employeeName, int employeeSalary) {
+		super();
+		this.employeeId = employeeId;
+		this.employeeName = employeeName;
+		this.employeeSalary = employeeSalary;
+	}
+     
+}
+
+
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		      
+		  TypedQuery<Employee> qry = em.createNamedQuery("viewAllEmployee", Employee.class);
+			List<Employee> list = qry.getResultList();
+			for(Employee emp : list){
+				System.out.println(emp.getEmployeeId()+" "+emp.getEmployeeName()+" "+emp.getEmployeeSalary());
+			}
+		   
+		   
+		  em.getTransaction().commit();
+		  
+		
+		  em.close();
+		  emf.close();
+	}
+}
+ output:
+Hibernate: select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_sal as emp3_1_ from employee_tbl employee0_
+2 shilpa 30000
+3 crista 30000
+4 john 5000
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+@Entity
+@Table(name="employee_tbl")  //to add table explicitly
+@NamedQuery(name="viewAllEmployee",query="from Employee")
+public class Employee {
+	 @Id  //primary key
+	 @GeneratedValue(strategy=GenerationType.AUTO)//auto is default if strategy is not specified
+	 @Column(name="emp_id")
+     private int employeeId;
+	 
+	 @Column(name="emp_name", length=15)
+     private String employeeName;
+	 
+	 @Column(name="emp_sal")
+	 @Transient  // salary will not be updated if it is transient
+     private int employeeSalary;
+	
+     public int getEmployeeId() {
+		return employeeId;
+	}
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+	public int getEmployeeSalary() {
+		return employeeSalary;
+	}
+	public void setEmployeeSalary(int employeeSalary) {
+		this.employeeSalary = employeeSalary;
+	}
+	
+	
+	public Employee() {
+		super();
+	}
+	
+	
+	public Employee(int employeeId, String employeeName, int employeeSalary) {
+		super();
+		this.employeeId = employeeId;
+		this.employeeName = employeeName;
+		this.employeeSalary = employeeSalary;
+	}
+     
+}
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+     public static void main(String[] args) {
+		  EntityManagerFactory emf =Persistence.createEntityManagerFactory("JPA-PU");
+		  EntityManager em = emf.createEntityManager();
+		  em.getTransaction().begin();//transaction boundary begins
+		      
+		  Employee emp = new Employee();
+		  emp.setEmployeeName("vijay");
+		  emp.setEmployeeSalary(90000);
+		   em.persist(emp);
+		  em.getTransaction().commit();
+		  
+		System.out.println("Employee added to database");
+		  em.close();
+		  emf.close();
+	}
+}
+ output:
+Hibernate: select hibernate_sequence.nextval from dual
+Hibernate: insert into employee_tbl (emp_name, emp_id) values (?, ?)
+Employee added to database
+
+// here we are using transient
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
